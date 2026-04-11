@@ -69,11 +69,42 @@ def make_game(players):
         assigned[j] = {"alive", "villager"}
     
     print(assigned)
+
+def get_choice(prompt, options):
+    """Displays a list of players and returns the selected player object.
+
+    Args: 
+        prompt (String) : prompt for specific player
+        options (list) : list of alive players
+
+    Returns:
+        (int) : returns choice of specific player
+
+    Side Effects:
+        Prints options of players, and takes in input for a number until valid input.
+
+    Raises:
+        ValueError: If input is not a number, it will try again.
+    """
+    print(f"\n--- {prompt} ---")
+    for i, player in enumerate(options):
+        print(f"{i + 1}) {player.name}")
     
-def night_time(self, players):
+    while True:
+        try:
+            choice = int(input("Select a number: ")) - 1
+            if 0 <= choice < len(options):
+                return options[choice]
+            print("Invalid number. Try again.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+from collections import Counter
+
+def night_time(players):
     """This method will be in charge of the night time cycle. This includes
     actions from the Doctor (protect someone from elimination), the Mafia 
-    (eliminate someone), and the Detective(s) (learn someone’s role).
+    (eliminate someone), and the Detective(s) (learn someone's role).
 
     Args: 
         players (list) : a list of player instances
@@ -82,9 +113,77 @@ def night_time(self, players):
         (list) : list of actions from players
 
     Side effects:
-    Detective action will print someone’s role if selected. Mafia action will 
+    Detective action will print someone's role if selected. Mafia action will 
     print who is eliminated and will potentially reduce the list of players
     by 1."""
+    # Filter for players who are still in the game
+    alive_players = [p for p in players if p.status == "alive"]
+    
+    # 1. Doctor's turn
+    doctor = next((p for p in alive_players if p.role == "doctor"), None)
+    protected_target = None
+    if doctor:
+        print("\nDoctor It's your turn!!")
+        protected_target = get_choice("Who do you want to save?", alive_players)
+    print("\n" * 50)           
+
+    # 2. Mafia's turn
+    mafia_members = [p for p in alive_players if p.role == "mafia"]
+    kill_target = None
+    
+    if mafia_members:
+        print(f"\n--- MAFIA VOTING PHASE ---")
+        votes = []
+        kill_options = [p for p in alive_players if p.role != "mafia"]
+        
+        for i, m in enumerate(mafia_members):
+            input(f"Mafia {i}, press Enter to cast your secret vote...")
+            voted_for = get_choice(f" Mafia {i}, who should we eliminate?", kill_options)
+            votes.append(voted_for)
+            # clear_screen()
+
+        # Determine the winner of the vote
+        vote_counts = Counter(votes)
+        # Get the player(s) with the highest number of votes
+        top_votes = vote_counts.most_common(1) # Returns [(player_object, count)]
+        
+        if top_votes:
+            kill_target = top_votes[0][0]
+            print(f"Most Voted: The Mafia has decided to target {kill_target.name}")
+        print("\n" * 50)   
+    # 3. Detective's turn
+    detective = next((p for p in alive_players if p.role == "detective"), None)
+    if detective:
+        print(f"\nDetective, It's your turn!!")
+        investigation_options = [p for p in alive_players if p != detective]
+        check_target = get_choice("Who do you want to investigate?", investigation_options)
+        print(f"Investigation Conclusion: Player {check_target.name} is {check_target.role}")
+
+    # Resolution
+    print("\n =" * 50)
+    if kill_target:
+        if kill_target == protected_target:
+            print(f"The Mafia attacked {kill_target.name}, but they were saved!")
+        else:
+            kill_target.status = "eliminated"
+            print(f"The morning sun rises, but {kill_target.name} is nowhere to be found.")
+    else:
+        print("The night was quiet.")
+    
+def reveal_roles_privately(players):
+    """This method reveals roles privately, so other players do not know.
+
+    Args:
+        players (list) : list of Player instances
+
+    Side Effects:
+        Takes in input and prints role of specific player. 
+    """       
+    for p in players:
+        input(f"Is {p.name} at the computer? Press Enter to see your secret role...")
+        print(f"Your role is: {p.role}")
+        input("Press Enter to clear the screen for the next player...")
+        print("\n" * 50) # Hide the role
 
 def day_time(self, players): 
     """This method will be in charge of the day cycle. This includes 
