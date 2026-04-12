@@ -198,18 +198,7 @@ def day_time(self, players):
         The information and the voting process will printed to	stdout"""
         
 def vote(self):
-    votes = {p.lower(): 0 for p in players}
-    for p in players:
-        voted_for = input(f"{p} please vote for a player ").lower()
-        while voted_for not in votes.keys():
-            voted_for = input("""That player was not found. 
-                              Please try again """).lower()
-        votes[voted_for] += 1
-        print(votes)
-    sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], reverse=True))
-    most_votes = list(sorted_votes)[0]
-    return f"{most_votes.capitalize()}, was voted out. They were a "\
-            f"{players[most_votes.capitalize()]}!"
+    pass
 
 def check_win_condition(self, player):
     """This method checks if the game has reached a win condition. The game
