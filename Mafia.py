@@ -15,7 +15,7 @@ players = [ "Mykha",
 
 
 def make_game(players):
-    """ This method will randomly assign roles to each player depending on how 
+    """ This function will randomly assign roles to each player depending on how 
     many people are playing. There are four roles: villager, mafia, doctor, and 
     detective. 
     5-7 players: 2 mafia, 1 detective, 1 doctor, 0-3 civilians
@@ -103,7 +103,7 @@ def get_choice(prompt, options):
 from collections import Counter
 
 def night_time(players):
-    """This method will be in charge of the night time cycle. This includes
+    """This function will be in charge of the night time cycle. This includes
     actions from the Doctor (protect someone from elimination), the Mafia 
     (eliminate someone), and the Detective(s) (learn someone's role).
 
@@ -172,7 +172,7 @@ def night_time(players):
         print("The night was quiet.")
     
 def reveal_roles_privately(players):
-    """This method reveals roles privately, so other players do not know.
+    """This function reveals roles privately, so other players do not know.
 
     Args:
         players (list) : list of Player instances
@@ -187,7 +187,7 @@ def reveal_roles_privately(players):
         print("\n" * 50) # Hide the role
 
 def day_time(self, players): 
-    """This method will be in charge of the day cycle. This includes 
+    """This function will be in charge of the day cycle. This includes 
     giving the information gathered overnight (i.e. deaths and saves)
     and giving the players time/a way to vote to eliminate. 
      Args:
@@ -199,11 +199,16 @@ def day_time(self, players):
         The information and the voting process will printed to	stdout"""
         
 def vote(players):
-    """This method is how the players in the game will vote. Each player will
+    """This function is how the players in the game will vote. Each player will
         vote for another player and votes will be counted before sorted and 
         returning the winner (or technically loser).
         
     Args: players(list): a list of Player instances
+    
+    Returns: The name of the winner and what role they had
+    
+    Side effects: Prints and reads from the stdout
+    
     """
     votes = {p.name.lower(): 0 for p in players}
     for p in players:
@@ -215,13 +220,31 @@ def vote(players):
     sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
                                reverse=True))
     
-    most_votes = list(sorted_votes)[0]
-    winner = next(p for p in players if p.name.lower() == most_votes)
-    return f"{most_votes.capitalize()}, was voted out. They were a "\
+    if tie(sorted_votes) == list:
+        print("It's a tie. Lets do it again!")
+        vote(tie(sorted_votes))
+    winner = next(p for p in players if p.name.lower() == list(sorted_votes)[0])
+    return f"{winner.name}, was voted out. They were a "\
             f"{winner.role}!"
 
+def tie(votes):
+    """This function checks if there is a tie in the voting process
+
+    Args: votes (dict): the pre sorted dict of player instances and
+        and how many votes they got.
+    
+    Returns: a string if just one winner, a list of the winner if there is a tie
+    """
+    most_votes = max(votes.values())
+    players_in_tie = [player for player, count in votes.items() 
+                      if count == most_votes]
+    if len(players_in_tie) > 1:
+        return players_in_tie
+    return players_in_tie[0]
+
+
 def check_win_condition(self, player):
-    """This method checks if the game has reached a win condition. The game
+    """This function checks if the game has reached a win condition. The game
     ends when either all mafia members have been eliminated (villagers win) or
     when the number of mafia players is equal to or greater than the number of
     non-mafia players (mafia wins).
