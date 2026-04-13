@@ -197,6 +197,24 @@ def day_time(self, players):
 
      Side effects:
         The information and the voting process will printed to	stdout"""
+
+def check_win(players):
+    mafia_count=0
+    villager_count = 0
+    for player in players:
+        if player.role = "Mafia":
+            mafia_count += 1
+        else:
+            villager_count += 1
+    
+    if mafia_count == 0:
+        return "Villagers"
+    elif mafia_count >= villager_count:
+        return "Mafia"
+    else: 
+        return None
+           
+           
         
 def vote(players):
     """This method is how the players in the game will vote. Each player will
@@ -220,24 +238,9 @@ def vote(players):
     return f"{most_votes.capitalize()}, was voted out. They were a "\
             f"{winner.role}!"
 
-def check_win_condition(self, player):
-    """This method checks if the game has reached a win condition. The game
-    ends when either all mafia members have been eliminated (villagers win) or
-    when the number of mafia players is equal to or greater than the number of
-    non-mafia players (mafia wins).
+           
 
-    Args:
-    players(list) : a list of player instances who are still in the game
 
-    Return:
-        str: A string indicating the result of the game:
-    “Mafia” if the mafia has won
-    “Villagers” if the villagers have one
-    None if neither condition has been met
-
-    Side effects: 
-        None. """
-    pass
 
 def main():
     make_game(players)
