@@ -199,10 +199,20 @@ def day_time(self, players):
         The information and the voting process will printed to	stdout"""
 
 def check_win(players):
+    """Checks to see if there are more mafia players than villagers (i.e. mafia
+        wins)
+
+    Args:
+        players(list): a list of Player instances
+
+    Returns:
+        string: if there is a winner, it returns which team won, otherwise 
+        returns none
+    """
     mafia_count=0
     villager_count = 0
     for player in players:
-        if player.role = "Mafia":
+        if player.role == "Mafia":
             mafia_count += 1
         else:
             villager_count += 1
@@ -238,9 +248,11 @@ def vote(players):
     sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
                                reverse=True))
     
-    if tie(sorted_votes) == list:
+    tied_names = tie(sorted_votes)
+    if isinstance(tied_names, list):
         print("It's a tie. Lets do it again!")
-        vote(tie(sorted_votes))
+        tied_players = [p for p in players if p.name.lower() in tied_names]
+        return vote(tied_players)
     winner = next(p for p in players if p.name.lower() == list(sorted_votes)[0])
     return f"{winner.name}, was voted out. They were a "\
             f"{winner.role}!"
@@ -259,16 +271,6 @@ def tie(votes):
     if len(players_in_tie) > 1:
         return players_in_tie
     return players_in_tie[0]
-
-
-def check_win_condition(self, player):
-    """This function checks if the game has reached a win condition. The game
-    ends when either all mafia members have been eliminated (villagers win) or
-    when the number of mafia players is equal to or greater than the number of
-    non-mafia players (mafia wins).
-
-    Args:
-    players(list) : a list of player instances who are still in the game """
 
 
 
