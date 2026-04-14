@@ -224,8 +224,19 @@ def check_win(players):
     else: 
         return None
            
-           
-        
+def get_alive_players(players):
+    """Filters and returns players who are alive and still in the game
+
+    Args:
+        players(list): a list of Player instances
+
+    Returns:
+        A list of player instances who are still alive 
+    
+    Side effects: None
+    """
+    return [p for p in players if p.status == "alive"]
+
 def vote(players):
     """This function is how the players in the game will vote. Each player will
         vote for another player and votes will be counted before sorted and 
