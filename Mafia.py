@@ -283,10 +283,13 @@ def tie(votes):
         return players_in_tie
     return players_in_tie[0]
 
-
+def voters(players):
+    pass
 
 def main():
     make_game(players)
+    
+
 
 if __name__ == "__main__": 
     main()
