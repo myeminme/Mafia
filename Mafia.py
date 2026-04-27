@@ -1,10 +1,10 @@
 import random 
-# class Player:
-#     def __init__(self):
-#         self.name = "Testudo"
-#         self.role = "villager"
-#         self.status = "alive"
-#         self.awake = "no"
+class Player:
+    def __init__(self, name, role, status = "alive", awake = "no"):
+        self.name = name
+        self.role = role
+        self.status = status
+        self.awake = awake
 
 players = [ "Mykha",
            "Aishani",
@@ -13,7 +13,47 @@ players = [ "Mykha",
            "Aric",
            "Testudo"]
 
-
+def make_game_with_objects(players):
+    #Amounts of Mafia
+    mafia_num = 0
+    if len(players) < 5:
+        mafia_num = 1
+    elif len(players) < 8:
+        mafia_num = 2
+    elif len(players) < 12:
+        mafia_num = 3
+    else:
+        mafia_num = 4
+        
+    #Non updated player list
+    no_roles =list(players)
+    
+    #Players with Roles
+    assigned = []
+    
+    #assign random to nurse
+    nurse = random.choice(no_roles)
+    assigned.append(Player(nurse, "nurse"))
+    no_roles.remove(nurse)
+    
+    #assign random to detective
+    detective = random.choice(no_roles)
+    assigned.append(Player(detective, "detective"))
+    no_roles.remove(detective)
+    
+    #assign random to mafia 
+    while mafia_num:
+        mafia = random.choice(no_roles)
+        assigned.append(Player(mafia, "mafia"))
+        no_roles.remove(mafia)
+        mafia_num-=1
+    #assign rest to villager
+    for j in no_roles:
+        assigned.append(Player(j, "villager"))
+    
+    return(assigned)
+    
+    
 def make_game(players):
     """ This function will randomly assign roles to each player depending on how 
     many people are playing. There are four roles: villager, mafia, doctor, and 
@@ -69,7 +109,7 @@ def make_game(players):
     for j in no_roles:
         assigned[j] = {"alive", "villager"}
     
-    print(assigned)
+    return(assigned)
 
 def get_choice(prompt, options):
     """Displays a list of players and returns the selected player object.
@@ -118,7 +158,7 @@ def night_time(players):
     print who is eliminated and will potentially reduce the list of players
     by 1."""
     # Filter for players who are still in the game
-    alive_players = [p for p in players if p.status == "alive"]
+    alive_players = get_alive_players(players)
     
     # 1. Doctor's turn
     doctor = next((p for p in alive_players if p.role == "doctor"), None)
@@ -137,9 +177,9 @@ def night_time(players):
         votes = []
         kill_options = [p for p in alive_players if p.role != "mafia"]
         
-        for i, m in enumerate(mafia_members):
-            input(f"Mafia {i}, press Enter to cast your secret vote...")
-            voted_for = get_choice(f" Mafia {i}, who should we eliminate?", kill_options)
+        for i in mafia_members:
+            input(f"Mafia, {i.name}, press Enter to cast your secret vote...")
+            voted_for = get_choice(f" Mafia {i.name}, who should we eliminate?", kill_options)
             votes.append(voted_for)
             # clear_screen()
 
@@ -186,17 +226,7 @@ def reveal_roles_privately(players):
         input("Press Enter to clear the screen for the next player...")
         print("\n" * 50) # Hide the role
 
-def day_time(self, players): 
-    """This function will be in charge of the day cycle. This includes 
-    giving the information gathered overnight (i.e. deaths and saves)
-    and giving the players time/a way to vote to eliminate. 
-     Args:
-        players(list): a list of Player instances
-     Returns:
-         (bool): if the players voted out a member of the mafia
 
-     Side effects:
-        The information and the voting process will printed to	stdout"""
 
 def check_win(players):
     """Checks to see if there are more mafia players than villagers (i.e. mafia
@@ -212,7 +242,7 @@ def check_win(players):
     mafia_count=0
     villager_count = 0
     for player in players:
-        if player.role == "Mafia":
+        if player.role == "mafia":
             mafia_count += 1
         else:
             villager_count += 1
@@ -237,7 +267,7 @@ def get_alive_players(players):
     """
     return [p for p in players if p.status == "alive"]
 
-def vote(players):
+def vote(players): # Andrew Gerhardt
     """This function is how the players in the game will vote. Each player will
         vote for another player and votes will be counted before sorted and 
         returning the winner (or technically loser).
@@ -249,26 +279,28 @@ def vote(players):
     Side effects: Prints and reads from the stdout
     
     """
-    votes = {p.name.lower(): 0 for p in players}
-    for p in players:
+    alive_players = get_alive_players(players)
+    votes = {p.name.lower(): 0 for p in alive_players}
+    for p in alive_players:
         voted_for = input(f"{p.name} please vote for a player ").lower()
         while voted_for not in votes.keys():
             voted_for = input("""That player was not found. 
                               Please try again """).lower()
         votes[voted_for] += 1
     sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
-                               reverse=True))
+                               reverse=True)) # claming comprehension
     
     tied_names = tie(sorted_votes)
     if isinstance(tied_names, list):
         print("It's a tie. Lets do it again!")
-        tied_players = [p for p in players if p.name.lower() in tied_names]
+        tied_players= [p for p in alive_players if p.name.lower() in tied_names]
         return vote(tied_players)
-    winner = next(p for p in players if p.name.lower() == list(sorted_votes)[0])
-    return f"{winner.name}, was voted out. They were a "\
-            f"{winner.role}!"
+    winner = next(p for p in alive_players if p.name.lower() == 
+                  list(sorted_votes)[0])
+    winner.status = "eliminated"
+    return f"{winner.name}, was voted out. They were a {winner.role}!"
 
-def tie(votes):
+def tie(votes): # Andrew Gerhardt
     """This function checks if there is a tie in the voting process
 
     Args: votes (dict): the pre sorted dict of player instances and
@@ -276,17 +308,25 @@ def tie(votes):
     
     Returns: a string if just one winner, a list of the winner if there is a tie
     """
-    most_votes = max(votes.values())
+    most_votes = max(votes.values()) # claiming max
     players_in_tie = [player for player, count in votes.items() 
                       if count == most_votes]
     if len(players_in_tie) > 1:
         return players_in_tie
     return players_in_tie[0]
 
+def play_game():
+    the_players = make_game_with_objects(players)
+    reveal_roles_privately(the_players)
+    while(not check_win(the_players)):
+        the_players = get_alive_players(the_players)
+        night_time(the_players)
+        vote(the_players)
+
 
 
 def main():
-    make_game(players)
+    make_game()
 
 if __name__ == "__main__": 
-    main()
+    play_game()
