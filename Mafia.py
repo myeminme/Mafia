@@ -240,14 +240,9 @@ def check_win(players):
         string: if there is a winner, it returns which team won, otherwise 
         returns none
     """
-    mafia_count=0
-    villager_count = 0
-    for player in players:
-        if player.role == "mafia":
-            mafia_count += 1
-        else:
-            villager_count += 1
-    
+    alive_players = [p for p in players if p.status == "alive"]
+    mafia_count = sum(1 for p in alive_players if p.role == "mafia")
+    villager_count = sum(1 for p in alive_players if p.role != "mafia")
     if mafia_count == 0:
         return "Villagers"
     elif mafia_count >= villager_count:
@@ -368,7 +363,6 @@ def main():
     game_loop(player_objs)
     
 
-
 def play_game():
     the_players = make_game_with_objects(players)
     reveal_roles_privately(the_players)
@@ -376,8 +370,6 @@ def play_game():
         the_players = get_alive_players(the_players)
         night_time(the_players)
         vote(the_players)
-
-
 
 if __name__ == "__main__": 
     play_game()
