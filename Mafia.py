@@ -1,10 +1,10 @@
 import random 
-# class Player:
-#     def __init__(self):
-#         self.name = "Testudo"
-#         self.role = "villager"
-#         self.status = "alive"
-#         self.awake = "no"
+class Player:
+    def __init__(self,name):
+        self.name = "Testudo"
+        self.role = "villager"
+        self.status = "alive"
+        self.awake = "no"
 
 players = [ "Mykha",
            "Aishani",
@@ -212,7 +212,7 @@ def check_win(players):
     mafia_count=0
     villager_count = 0
     for player in players:
-        if player.role == "Mafia":
+        if player.role == "mafia":
             mafia_count += 1
         else:
             villager_count += 1
@@ -283,11 +283,55 @@ def tie(votes):
         return players_in_tie
     return players_in_tie[0]
 
-def voters(players):
-    pass
+def reveal_all_roles(players):
+    """Reveals the roles of all players
+    
+    Args:
+        players(list): A list of player instances
+        
+    Returns:
+        None
+        
+    Side effects:
+        Prints each player's name along with their role"""
+    for p in players:
+        print(f"{p.name}: {p.role}")
+
+def game_loop(players):
+    """Controls the main flow of the mafia game by running alternating night
+    and day cycles until a win condition is met
+    
+    Args: 
+        players (list): A list of player instances participating in the game
+        
+    Returns: 
+        None
+        
+    Side effects:
+        Calls night_time and vote to stimulate gameplay
+        Prints updates about each phasing, including updates about
+        eliminations and results
+        Ends the game when a winner is determined and results are printed"""
+    while True:
+        night_time(players)
+        winner = check_win(players)
+        reveal_all_roles(players)
+        if winner:
+            print(f"{winner} won!")
+            break
+        print("\n --- DAY TIME ---")
+        print(vote(get_alive_players(players)))
+        
+        winner = check_win(players)
+        if winner:
+            print(f"{winner} won!")
+            reveal_all_roles(players)
+            break
 
 def main():
-    make_game(players)
+    player_objs = [Player(name) for name in players]
+    make_game(player_objs)
+    game_loop(player_objs)
     
 
 
