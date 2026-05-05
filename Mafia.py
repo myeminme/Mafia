@@ -160,12 +160,14 @@ def night_time(players):
     by 1."""
     # Filter for players who are still in the game
     alive_players = get_alive_players(players)
-    
-    # 1. Doctor's turn
-    doctor = next((p for p in alive_players if p.role == "doctor"), None)
+
+    input("----NIGHT TIME----\nPress Enter to continue:")
+    print("=\n" * 50)
+    # 1. Nurse's turn
+    nurse = next((p for p in alive_players if p.role == "nurse"), None)
     protected_target = None
-    if doctor:
-        print("\nDoctor It's your turn!!")
+    if nurse:
+        print("\nNurse, It's your turn!!")
         protected_target = get_choice("Who do you want to save?", alive_players)
     print("\n" * 50)           
 
@@ -174,7 +176,8 @@ def night_time(players):
     kill_target = None
     
     if mafia_members:
-        print(f"\n--- MAFIA VOTING PHASE ---")
+        input(f"\n---- MAFIA VOTING PHASE ----\nPress Enter to start phase:")
+        print("=\n" * 50)
         votes = []
         kill_options = [p for p in alive_players if p.role != "mafia"]
         
@@ -192,6 +195,7 @@ def night_time(players):
         if top_votes:
             kill_target = top_votes[0][0]
             print(f"Most Voted: The Mafia has decided to target {kill_target.name}")
+        input("Press Enter to continue:")
         print("\n" * 50)   
     # 3. Detective's turn
     detective = next((p for p in alive_players if p.role == "detective"), None)
@@ -200,7 +204,7 @@ def night_time(players):
         investigation_options = [p for p in alive_players if p != detective]
         check_target = get_choice("Who do you want to investigate?", investigation_options)
         print(f"Investigation Conclusion: Player {check_target.name} is {check_target.role}")
-
+        input("Press Enter to continue")
     # Resolution
     print("\n =" * 50)
     if kill_target:
@@ -344,9 +348,10 @@ def game_loop(players):
     while True:
         night_time(players)
         winner = check_win(players)
-        reveal_all_roles(players)
+        #reveal_all_roles(players)
         if winner:
             print(f"{winner} won!")
+            reveal_all_roles(players) # Changed to here
             break
         print("\n --- DAY TIME ---")
         print(vote(get_alive_players(players)))
@@ -366,10 +371,11 @@ def main():
 def play_game():
     the_players = make_game_with_objects(players)
     reveal_roles_privately(the_players)
-    while(not check_win(the_players)):
-        the_players = get_alive_players(the_players)
-        night_time(the_players)
-        vote(the_players)
+    game_loop(the_players) # Included in here
+    #while(not check_win(the_players)):
+     #   the_players = get_alive_players(the_players)
+     #   night_time(the_players)
+     #   vote(the_players)
 
 if __name__ == "__main__": 
     play_game()
