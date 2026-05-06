@@ -1,20 +1,47 @@
 import random 
+from argparse import ArgumentParser
+from sys import argv
+
 class Player:
-    def __init__(self, name, role, status = "alive", awake = "no"):
+    """Class for the player objects
+    
+    Attributes:
+        name (str): the players name
+        role (str): the role of the player (villager, mafia, doctor, or 
+            detective)
+        status (str): either alive or eliminated if the player is still playing
+    """
+    def __init__(self, name, role, status = "alive"):
+        """Sets the attriubtes
+
+        Args:
+            name (str): name of the player
+            role (str): role of the player
+            status (str, optional): if the player is alive or dead.
+                Defaults to "alive".
+        """
         self.name = name
         self.role = role
         self.status = status
-        self.awake = awake
 
+def make_game_with_objects(players): #
+    """ This function will randomly assign roles to each player depending on how 
+    many people are playing. There are four roles: villager, mafia, doctor, and 
+    detective. 
+    5-7 players: 2 mafia, 1 detective, 1 doctor, 0-3 civilians
+    8-11: 3 mafia, 1 detective, 1 doctor, 2-5 civilians
+    12-15: 4 mafia, 1 detectives, 1 doctor, 4-7 civilians.
 
-players = [ "Mykha",
-           "Aishani",
-           "Akshay",
-           "Andrew",
-           "Aric",
-           "Testudo"]
+    Args:
+        players (list): The list of players that are participating in 
+        the game
 
-def make_game_with_objects(players):
+    Returns:
+        Assigned (list): A list of player instances and their assigned roles and status
+
+    Side effects: 
+        Instances of players will be updated to now have a role. This will be done 
+        through either classes or interfaces."""
     #Amounts of Mafia
     mafia_num = 0
     if len(players) < 5:
@@ -55,7 +82,7 @@ def make_game_with_objects(players):
     return(assigned)
     
     
-def make_game(players):
+def make_game(players): # Not sure we use this anymore...
     """ This function will randomly assign roles to each player depending on how 
     many people are playing. There are four roles: villager, mafia, doctor, and 
     detective. 
@@ -162,7 +189,7 @@ def night_time(players):
     alive_players = get_alive_players(players)
 
     input("----NIGHT TIME----\nPress Enter to continue:")
-    print("=\n" * 50)
+    print("\n" * 50)
     # 1. Nurse's turn
     nurse = next((p for p in alive_players if p.role == "nurse"), None)
     protected_target = None
@@ -177,7 +204,7 @@ def night_time(players):
     
     if mafia_members:
         input(f"\n---- MAFIA VOTING PHASE ----\nPress Enter to start phase:")
-        print("=\n" * 50)
+        print("\n" * 50)
         votes = []
         kill_options = [p for p in alive_players if p.role != "mafia"]
         
@@ -206,15 +233,15 @@ def night_time(players):
         print(f"Investigation Conclusion: Player {check_target.name} is {check_target.role}")
         input("Press Enter to continue")
     # Resolution
-    print("\n =" * 50)
+    print("\n" * 50)
     if kill_target:
         if kill_target == protected_target:
-            print(f"The Mafia attacked {kill_target.name}, but they were saved!")
+            input(f"The Mafia attacked {kill_target.name}, but they were saved!")
         else:
             kill_target.status = "eliminated"
-            print(f"The morning sun rises, but {kill_target.name} is nowhere to be found.")
+            input(f"The morning sun rises, but {kill_target.name} is nowhere to be found.")
     else:
-        print("The night was quiet.")
+        input("The night was quiet.")
     
 def reveal_roles_privately(players):
     """This function reveals roles privately, so other players do not know.
@@ -288,7 +315,7 @@ def vote(players): # Andrew Gerhardt
                               Please try again """).lower()
         votes[voted_for] += 1
     sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
-                               reverse=True)) # claming comprehension
+                               reverse=True)) # claming use of a key function
     
     tied_names = tie(sorted_votes)
     if isinstance(tied_names, list):
@@ -308,7 +335,7 @@ def tie(votes): # Andrew Gerhardt
     
     Returns: a string if just one winner, a list of the winner if there is a tie
     """
-    most_votes = max(votes.values()) # claiming max
+    most_votes = max(votes.values())
     players_in_tie = [player for player, count in votes.items() 
                       if count == most_votes]
     if len(players_in_tie) > 1:
@@ -351,7 +378,7 @@ def game_loop(players):
         #reveal_all_roles(players)
         if winner:
             print(f"{winner} won!")
-            reveal_all_roles(players) # Changed to here
+            reveal_all_roles(players) 
             break
         print("\n --- DAY TIME ---")
         print(vote(get_alive_players(players)))
@@ -361,21 +388,34 @@ def game_loop(players):
             print(f"{winner} won!")
             reveal_all_roles(players)
             break
-
-def main():
-    player_objs = [Player(name) for name in players]
-    make_game(player_objs)
-    game_loop(player_objs)
     
 
-def play_game():
+def play_game(filepath): # Andrew Gerhardt and Akshay
+    players = list()
+    with open(filepath, "r", encoding= "utf-8") as f:
+        for line in f:
+            players.append(line.strip())
     the_players = make_game_with_objects(players)
     reveal_roles_privately(the_players)
-    game_loop(the_players) # Included in here
-    #while(not check_win(the_players)):
-     #   the_players = get_alive_players(the_players)
-     #   night_time(the_players)
-     #   vote(the_players)
+    game_loop(the_players) 
+
+def parse_args(arglist): # Andrew Gerhardt
+    """Parse command-line arguments.
+    
+    Expect three mandatory arguments:
+        - filepath: a path to a file containing the people playing mafia
+
+    Args:
+        arglist (list of str): arguments from the command line.
+
+    Returns:
+        namespace: the parsed arguments, as a namespace.
+    """
+    
+    parser = ArgumentParser()
+    parser.add_argument("filepath",help="Path to the file with the players")
+    return parser.parse_args(arglist)
 
 if __name__ == "__main__": 
-    play_game()
+    args = parse_args(argv[1:])
+    play_game(args.filepath)
