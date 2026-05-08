@@ -22,52 +22,35 @@ class Player:
         """
         self.name = name
         self.role = role
+    
+    def __str__(self):
+        return (f"The player {self.name}'s role is {self.role.name}.")
 
 #parent class
 class Role():
     def __init__(self,name):
         self.name = name
         
-    def action(self, game, player):
+    def action(self, game):
         pass
+        
     
 class Mafia(Role):
     def __init__(self):
         super().__init__("mafia")
         
     def action(self, game, player):
-        kill_target = None
-        input(f"\n---- MAFIA VOTING PHASE ----\nPress Enter to start phase:")
-        print("\n" * 50)
-        votes = []
-        kill_options = [p for p in alive_players if p.role != "mafia"]
-            
-        for i in mafia_members:
-            input(f"Mafia, {i.name}, press Enter to cast your secret vote...")
-            voted_for = get_choice(f" Mafia {i.name}, who should we eliminate?", kill_options)
-            votes.append(voted_for)
-            # clear_screen()
-
-        # Determine the winner of the vote
-        vote_counts = Counter(votes)
-        # Get the player(s) with the highest number of votes
-        top_votes = vote_counts.most_common(1) # Returns [(player_object, count)]
-            
-        if top_votes:
-            kill_target = top_votes[0][0]
-            print(f"Most Voted: The Mafia has decided to target {kill_target.name}")
-        input("Press Enter to continue:")
-        print("\n" * 50)   
-
+        input(f"Mafia press Enter to cast your secret vote...")
+        voted_for = game.get_choice(f"Mafia {player.name}, who should we eliminate?", game.kill_options)
+        game.votes.append(voted_for)
+        
 class Nurse(Role):
-    def __init__(self,nurse):
+    def __init__(self):
         super().__init__("nurse")
         
     def action(self, game, player):
-        protected_target = None
-        
         print("\nNurse, It's your turn!!")
-        protected_target = get_choice("Who do you want to save?", alive_players)
+        game.protect_target = game.get_choice(f"{player.name}, Who do you want to save?", game.alive_players )
         print("\n" * 50)  
     
 class Detective(Role):
@@ -75,11 +58,10 @@ class Detective(Role):
         super().__init__("detective")
         
     def action(self, game, player):
-    
         print(f"\nDetective, It's your turn!!")
-        investigation_options = [p for p in alive_players if p != detective]
-        check_target = get_choice("Who do you want to investigate?", investigation_options)
-        print(f"Investigation Conclusion: Player {check_target.name} is {check_target.role}")
+        investigation_options = [p for p in game.alive_players if p != player]
+        check_target = game.get_choice("Who do you want to investigate?", investigation_options)
+        print(f"Investigation Conclusion: Player {check_target.name} is a {check_target.role.name}")
         input("Press Enter to continue")
         
 class Villager(Role):
@@ -90,8 +72,14 @@ class Villager(Role):
         pass
     
 class Game:
-    def remove_player(self, player):
-        pass
+    
+    def __init__(self):
+        self.kill_target = None
+        self.kill_options = []
+        self.protect_target = None
+        self.alive_players = []
+        self.eliminated = []
+        self.votes = []
     
     def make_game(self, players): #
         """ This function will randomly assign roles to each player depending on how 
@@ -113,11 +101,11 @@ class Game:
             through either classes or interfaces."""
         #Amounts of Mafia
         mafia_num = 0
-        if len(players) < 5:
+        if len(players) < 4:
             mafia_num = 1
-        elif len(players) < 8:
+        elif len(players) < 7:
             mafia_num = 2
-        elif len(players) < 12:
+        elif len(players) < 10:
             mafia_num = 3
         else:
             mafia_num = 4
@@ -150,7 +138,7 @@ class Game:
         
         return(assigned)       
 
-    def get_choice(prompt, options):
+    def get_choice(self, prompt, options):
         """Displays a list of players and returns the selected player object.
 
         Args: 
@@ -179,7 +167,7 @@ class Game:
             except ValueError:
                 print("Please enter a valid number.")
 
-    def night_time(self, players):
+    def night_time(self):
         """This function will be in charge of the night time cycle. This includes
         actions from the Doctor (protect someone from elimination), the Mafia 
         (eliminate someone), and the Detective(s) (learn someone's role).
@@ -194,23 +182,45 @@ class Game:
         Detective action will print someone's role if selected. Mafia action will 
         print who is eliminated and will potentially reduce the list of players
         by 1."""
-        # Filter for players who are still in the game
-        alive_players = self.get_alive_players(players)
+        
+        #reset attributes
+        self.kill_target = None
+        self.kill_options = []
+        self.protect_target = None
+        self.votes = []
+        self.kill_options = []
 
         input("----NIGHT TIME----\nPress Enter to continue:")
         print("\n" * 50)
         
+        self.kill_options = [p for p in self.alive_players if not isinstance(p.role, Mafia)]
         # Players turns
-        for person in players:
-            person.role.action(self,person)
+        for person in self.alive_players:
+            input(f"\n---- PASS THE DEVICE TO {person.name} ----\nPress Enter to start turn:")
+            print("\n" * 50)
+            person.role.action(self, person)
+         # Determine the winner of the vote
+        vote_counts = Counter(self.votes)
+        
+        # Get the player(s) with the highest number of votes
+        top_votes = vote_counts.most_common(1) # Returns [(player_object, count)] 
+            
+        if top_votes:
+            self.kill_target = top_votes[0][0]
+            print(f"Most Voted: The Mafia has decided to target {self.kill_target.name}")
+        input("Press Enter to continue:")
+        print("\n" * 50)   
+        self.votes.clear()
+        
         # Resolution
         print("\n" * 50)
-        if kill_target:
-            if kill_target == protected_target:
-                input(f"The Mafia attacked {kill_target.name}, but they were saved!")
+        if self.kill_target:
+            if self.kill_target == self.protect_target:
+                input(f"The Mafia attacked {self.kill_target.name}, but they were saved!")
             else:
-                kill_target.status = "eliminated"
-                input(f"The morning sun rises, but {kill_target.name} is nowhere to be found.")
+                self.alive_players.remove(self.kill_target)
+                self.eliminated.append(self.kill_target)
+                input(f"The morning sun rises, but {self.kill_target.name} is nowhere to be found.")
         else:
             input("The night was quiet.")
         
@@ -225,11 +235,11 @@ class Game:
         """       
         for p in players:
             input(f"Is {p.name} at the computer? Press Enter to see your secret role...")
-            print(f"Your role is: {p.role}")
+            print(f"Your role is: {p.role.name}")
             input("Press Enter to clear the screen for the next player...")
             print("\n" * 50) # Hide the role
 
-    def check_win(self, players):
+    def check_win(self):
         """Checks to see if there are more mafia players than villagers (i.e. mafia
             wins)
 
@@ -240,9 +250,8 @@ class Game:
             string: if there is a winner, it returns which team won, otherwise 
             returns none
         """
-        alive_players = [p for p in players if p.status == "alive"]
-        mafia_count = sum(1 for p in alive_players if p.role == "mafia")
-        villager_count = sum(1 for p in alive_players if p.role != "mafia")
+        mafia_count = sum(1 for p in self.alive_players if isinstance(p.role, Mafia))
+        villager_count = sum(1 for p in self.alive_players if isinstance(p.role, Mafia))
         if mafia_count == 0:
             return "Villagers"
         elif mafia_count >= villager_count:
@@ -250,20 +259,7 @@ class Game:
         else: 
             return None
             
-    def get_alive_players(self, players):
-        """Filters and returns players who are alive and still in the game
-
-        Args:
-            players(list): a list of Player instances
-
-        Returns:
-            A list of player instances who are still alive 
-        
-        Side effects: None
-        """
-        return [p for p in players if p.status == "alive"]
-
-    def vote(self, players): # Andrew Gerhardt
+    def vote(self, players=None): # Andrew Gerhardt
         """This function is how the players in the game will vote. Each player will
             vote for another player and votes will be counted before sorted and 
             returning the winner (or technically loser).
@@ -275,9 +271,11 @@ class Game:
         Side effects: Prints and reads from the stdout
         
         """
-        alive_players = get_alive_players(players)
-        votes = {p.name.lower(): 0 for p in alive_players}
-        for p in alive_players:
+        if players is None:
+            players = self.alive_players
+        votes = {p.name.lower(): 0 for p in players}
+        
+        for p in self.alive_players:
             voted_for = input(f"{p.name} please vote for a player ").lower()
             while voted_for not in votes.keys():
                 voted_for = input("""That player was not found. 
@@ -286,15 +284,16 @@ class Game:
         sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
                                 reverse=True)) # claming use of a key function
         
-        tied_names = tie(sorted_votes)
+        tied_names = self.tie(sorted_votes)
         if isinstance(tied_names, list):
             print("It's a tie. Lets do it again!")
-            tied_players= [p for p in alive_players if p.name.lower() in tied_names]
-            return vote(tied_players)
-        winner = next(p for p in alive_players if p.name.lower() == 
+            tied_players= [p for p in self.alive_players if p.name.lower() in tied_names]
+            return self.vote(tied_players)
+        winner = next(p for p in self.alive_players if p.name.lower() == 
                     list(sorted_votes)[0])
-        winner.status = "eliminated"
-        return f"{winner.name}, was voted out. They were a {winner.role}!"
+        self.alive_players.remove(winner)
+        self.eliminated.append(winner)
+        return f"{winner.name}, was voted out. They were a {winner.role.name}!"
 
     def tie(self, votes): # Andrew Gerhardt
         """This function checks if there is a tie in the voting process
@@ -311,7 +310,6 @@ class Game:
             return players_in_tie
         return players_in_tie[0]
 
-
     def reveal_all_roles(self, players):
         """Reveals the roles of all players
         
@@ -324,7 +322,7 @@ class Game:
         Side effects:
             Prints each player's name along with their role"""
         for p in players:
-            print(f"{p.name}: {p.role}")
+            print(str(p))
 
     def game_loop(self, players):
         """Controls the main flow of the mafia game by running alternating night
@@ -341,22 +339,22 @@ class Game:
             Prints updates about each phasing, including updates about
             eliminations and results
             Ends the game when a winner is determined and results are printed"""
-        while True:
-            self.night_time(players)
-            winner = self.check_win(players)
+        winner = None
+        self.alive_players = players
+        while winner is None:
+            self.night_time()
+            winner = self.check_win()
             #reveal_all_roles(players)
             if winner:
-                print(f"{winner} won!")
-                self.reveal_all_roles(players) 
                 break
             print("\n --- DAY TIME ---")
-            print(self.vote(self.get_alive_players(players)))
-            
-            winner = self.check_win(players)
-            if winner:
-                print(f"{winner} won!")
-                self.reveal_all_roles(players)
-                break
+            print(self.vote())
+            winner = self.check_win()
+
+        print(f"{winner} won!")
+        
+        self.reveal_all_roles(players)
+                
         
 
     def play_game(self, filepath): # Andrew Gerhardt and Akshay
