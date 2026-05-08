@@ -251,7 +251,7 @@ class Game:
             returns none
         """
         mafia_count = sum(1 for p in self.alive_players if isinstance(p.role, Mafia))
-        villager_count = sum(1 for p in self.alive_players if isinstance(p.role, Mafia))
+        villager_count = sum(1 for p in self.alive_players if not isinstance(p.role, Mafia))
         if mafia_count == 0:
             return "Villagers"
         elif mafia_count >= villager_count:
