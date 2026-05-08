@@ -12,6 +12,9 @@ You run the game using python Mafia.py players.txt - or whatever the name of you
 | vote           | Andrew         | use of a key function   |
 | play_game      | Andrew         | with statment           |
 | parse_args     | Andrew         | ArgumentParser          |
+| night_time     | Akshay         | conditional expressions |
+| get_choice     | Akshay         | sequence unpacking      |
+| reveal_roles_privately | Akshay | None                    |
 
 "# Mafia" 
 
