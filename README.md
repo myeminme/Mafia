@@ -1,3 +1,18 @@
+Mafia.py - the main file with all of the code to make the game run
+
+players.txt - a sample txt file that holds names of the players playing. Should have only first names of the players with a newline in between names 
+
+Mafia.py takes one command line argument, the name of the txt file with players (i.e. players.txt)
+You run the game using python Mafia.py players.txt - or whatever the name of your txt file is.
+
+"Insert how the game works on a gameplay level here"
+
+| Method/function| Primary author | Techniques demonstrated |
+| -------------- | -------------- | ----------------------- |
+| vote           | Andrew         | use of a key function   |
+| play_game      | Andrew         | with statment           |
+| parse_args     | Andrew         | ArgumentParser          |
+
 "# Mafia" 
 
 - make_game function: This function will assign roles to a list of players. It does so dynamically deping on the amount playing.

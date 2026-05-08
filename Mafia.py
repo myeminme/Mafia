@@ -43,6 +43,7 @@ class Mafia(Role):
         input(f"Mafia press Enter to cast your secret vote...")
         voted_for = game.get_choice(f"Mafia {player.name}, who should we eliminate?", game.kill_options)
         game.votes.append(voted_for)
+        print("\n" * 50)
         
 class Nurse(Role):
     def __init__(self):
@@ -63,6 +64,7 @@ class Detective(Role):
         check_target = game.get_choice("Who do you want to investigate?", investigation_options)
         print(f"Investigation Conclusion: Player {check_target.name} is a {check_target.role.name}")
         input("Press Enter to continue")
+        print("\n" * 50)
         
 class Villager(Role):
     def __init__(self):
@@ -273,13 +275,14 @@ class Game:
         """
         if players is None:
             players = self.alive_players
-        votes = {p.name.lower(): 0 for p in players}
+        votes = {p.name: 0 for p in players}
         
         for p in self.alive_players:
-            voted_for = input(f"{p.name} please vote for a player ").lower()
-            while voted_for not in votes.keys():
-                voted_for = input("""That player was not found. 
-                                Please try again """).lower()
+            voted_for = self.get_choice(f"{p.name}, please vote for a player ?", players).name
+            #voted_for = input(f"{p.name} please vote for a player ").lower()
+            #while voted_for not in votes.keys():
+                #voted_for = input("""That player was not found. 
+                                #Please try again """).lower()
             votes[voted_for] += 1
         sorted_votes = dict(sorted(votes.items(), key=lambda item: item[1], 
                                 reverse=True)) # claming use of a key function
@@ -287,13 +290,12 @@ class Game:
         tied_names = self.tie(sorted_votes)
         if isinstance(tied_names, list):
             print("It's a tie. Lets do it again!")
-            tied_players= [p for p in self.alive_players if p.name.lower() in tied_names]
+            tied_players= [p for p in self.alive_players if p.name in tied_names]
             return self.vote(tied_players)
-        winner = next(p for p in self.alive_players if p.name.lower() == 
-                    list(sorted_votes)[0])
+        winner = next(p for p in self.alive_players if p.name == list(sorted_votes)[0])
         self.alive_players.remove(winner)
         self.eliminated.append(winner)
-        return f"{winner.name}, was voted out. They were a {winner.role.name}!"
+        return f"{winner.name}, was voted out. They were a {winner.role}!"
 
     def tie(self, votes): # Andrew Gerhardt
         """This function checks if there is a tie in the voting process
