@@ -359,7 +359,12 @@ class Game:
                 
         
 
-    def play_game(self, filepath): # Andrew Gerhardt and Akshay
+    def play_game(self, filepath):
+        """Opens a file to read the players and starts the game
+
+        Args:
+            filepath (str): the path to the file with the players names
+        """
         players = list()
         with open(filepath, "r", encoding= "utf-8") as f:
             for line in f:
