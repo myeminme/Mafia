@@ -2,11 +2,11 @@
 
 - make_game function: This function will assign roles to a list of players. It does so dynamically deping on the amount playing.
 
-- night_time function: Akshay Varma - This function will be in charge of the night time cycle. This includes actions from the Doctor (protect someone from elimination), the Mafia (eliminate someone), and the Detective(s) (learn someone’s role)
+- night_time function: Akshay Varma - This function will be in charge of the night time cycle. This includes actions from the Doctor (protect someone from elimination), the Mafia (eliminate someone), and the Detective(s) (learn someone’s role) - Techniques: conditional expressions
 
 - reveal_roles_privately function: Akshay Varma - This function will reveal roles for each player privately, so others do not know their roles.
 
-- get_choice function: Akshay Varma - This function displays a list of players and returns the selected player object.
+- get_choice function: Akshay Varma - This function displays a list of players and returns the selected player object. - Techniques: sequence unpacking
 
 - check_win function: This function checks if the game has reached a win condition. The game ends when either all mafia members have been eliminated 		(villagers win) or when the number of mafia players is equal to or greater than the number of non-mafia players (mafia wins)
 
