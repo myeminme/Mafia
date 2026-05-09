@@ -18,6 +18,10 @@ You run the game using python Mafia.py players.txt - or whatever the name of you
 | action for all classes | Mykha  | super()                 |
 | __str__        | Mykha          | magic method            |
 | make_game      | Mykha          | None                    |
+| check_win      | Aishani        | Generator Expression    |
+| get_alive_players| Aishani      | List Comprehension      |
+| reveal_all_roles| Aishani       | F-strings               |
+| game_loop      | Aishani        | F-strings               |
 
 "# Mafia" 
 
