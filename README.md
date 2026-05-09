@@ -15,6 +15,9 @@ You run the game using python Mafia.py players.txt - or whatever the name of you
 | night_time     | Akshay         | conditional expressions |
 | get_choice     | Akshay         | sequence unpacking      |
 | reveal_roles_privately | Akshay | None                    |
+| action for all classes | Mykha  | super()                 |
+| __str__        | Mykha          | magic method            |
+| make_game      | Mykha          | None                    |
 
 "# Mafia" 
 
