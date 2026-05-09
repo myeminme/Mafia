@@ -42,3 +42,12 @@ before sorted and returning the winner (or technically loser).
 
 - day_time function: This function will be in charge of the day cycle. This includes  	giving the information gathered overnight (i.e. deaths and saves)
 and giving the players time/a way to vote to eliminate
+
+- Reveal_all_roles: This functioneveals the roles of each player at the end.
+
+- Game_loop : This function is how the game knows when to stop the game and when 
+to keep going. Itll stop when either the mfia kills everyone or the other characters
+quess the mafia
+
+- Get_alive_players: Shows a lit of all of they players who are still alive at any
+given point in time
