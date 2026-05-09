@@ -29,6 +29,8 @@ class Player:
 #parent class
 class Role():
     def __init__(self,name):
+        """Sets the attriubtes of name (str) to the name of the player 
+        """
         self.name = name
         
     def action(self, game):
@@ -40,6 +42,12 @@ class Mafia(Role):
         super().__init__("mafia")
         
     def action(self, game, player):
+        """The action for the mafia players. Allows for the elimination of a player
+
+        Args:
+            game (Game): instance of Game being used
+            player (Player): instance of Player who is a mafia being called on
+        """
         input(f"Mafia press Enter to cast your secret vote...")
         voted_for = game.get_choice(f"Mafia {player.name}, who should we eliminate?", game.kill_options)
         game.votes.append(voted_for)
@@ -50,6 +58,12 @@ class Nurse(Role):
         super().__init__("nurse")
         
     def action(self, game, player):
+        """The action for the nurse player. Allows the saving of a player
+
+        Args:
+            game (Game): instance of Game being used
+            player (Player): instance of Player who is a nurse being called on
+        """
         print("\nNurse, It's your turn!!")
         game.protect_target = game.get_choice(f"{player.name}, Who do you want to save?", game.alive_players )
         print("\n" * 50)  
@@ -59,6 +73,12 @@ class Detective(Role):
         super().__init__("detective")
         
     def action(self, game, player):
+        """The action for the detective player. Allows viewing of one players role
+
+        Args:
+            game (Game): instance of Game being used
+            player (Player): instance of Player who is a detective being called on
+        """
         print(f"\nDetective, It's your turn!!")
         investigation_options = [p for p in game.alive_players if p != player]
         check_target = game.get_choice("Who do you want to investigate?", investigation_options)
@@ -71,11 +91,25 @@ class Villager(Role):
         super().__init__("villager")
         
     def action(self, game, player):
+        """Just passes because villagers don't have an action. Sorry villagers!
+        """
         pass
     
 class Game:
+    """The class being used to run the game. 
+    
+        Attriubtes:
+            kill_target(Player): instance of Player that is being eliminated
+            kill_options(lst): list of Players that are not the mafia
+            protect_target(Player): instance of Player that is being saved by the nurse
+            alive_player(lst): list of Players that are still alive
+            eliminated(lst): list of Players that have been eliminated
+            votes(lst): list of Players used for voting
+    """
     
     def __init__(self):
+        """Sets the attriubtes.
+        """
         self.kill_target = None
         self.kill_options = []
         self.protect_target = None
